@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+    }
+
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .page {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #box {
+      width: 100px;
+      height: 100px;
+      background: red;
+      /* transform: rotate(30deg); */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div id="box">
+
+    </div>
+  </div>
+  <script>
+    (function () {
+      var box = document.querySelector('#box');
+      tap(box, function () {
+        transform(box, "translateX", 100);
+        transform(box, "translateY", 100);
+        /*
+          1.
+          通过计算后样式,获取transform时,只能获取到matrix
+          2.
+          matrix不能逆推回rotate, translate, scale, skew...
+          
+          解决方案
+            1. 不在transform通过css去设置
+            2. 所有的transform设置 都在js进行
+            3. 在transform设置的时候,  同步去记录所有的值
+        */
+      });
+    })()
+    /* transform */
+    function transform(el, attr, val) {
+      /*
+        el.transform = {}
+        记录元素的transform的相关设置
+        {
+          rotate:0,
+          skewX: 0
+        }
+      */
+      if (!el.transform) {
+        el.transform = {
+          // rotate: 0,
+          // rotateX: 0,
+          // rotateY: 0,
+          // rotateZ: 0,
+          // skewX: 0,
+          // skewY: 0,
+          // scaleX: 1,
+          // scaleY: 1,
+          // translateX: 0,
+          // translateY: 0,
+          // translateZ: 0
+        };
+      }
+      /* 获取元素相对应的值 */
+      if (val === void 0) {
+        return el.transform[attr];
+      }
+      /* 设置元素相对应的值 */
+      el.transform[attr] = val;
+      console.log(el.transform[attr]);
+      var str = "";
+      for (const s in el.transform) {
+        if (el.transform.hasOwnProperty(s)) {
+          const element = el.transform[s];
+          switch (s) {
+            case "rotate":
+            case "rotateX":
+            case "rotateY":
+            case "rotateZ":
+            case "skewX":
+            case "skewY":
+              str += s + "(" + element + "deg) ";
+              break;
+            case "scale":
+            case "scaleX":
+            case "scaleY":
+              str += s + "(" + element + ") ";
+              break;
+            case "translateX":
+            case "translateY":
+            case "translateZ":
+              str += s + "(" + element + "px) ";
+              break;
+          }
+        }
+      }
+      console.log(str);
+      el.style.WebkitTransform = el.style.transform = str;
+    }
+
+    function tap(el, fn) {
+      var startPoint = {};
+      el.addEventListener('touchstart', function (e) {
+        startPoint = {
+          x: e.changedTouches[0].pageX,
+          y: e.changedTouches[0].pageY
+        }
+      })
+
+      el.addEventListener('touchmove', function (e) {
+        startPoint = {
+          x: e.changedTouches[0].pageX,
+          y: e.changedTouches[0].pageY
+        }
+      })
+
+      el.addEventListener('touchend', function (e) {
+        var nowPoint = {
+          x: e.changedTouches[0].pageX,
+          y: e.changedTouches[0].pageY
+        }
+        if ((Math.abs(nowPoint.x - startPoint.x) < 5) && (Math.abs(nowPoint.y - startPoint.y) < 5)) {
+          fn && fn.call(el, e);
+        }
+      })
+    }
+    // 获取元素或者设置元素的样式
+    // left, width, height, marginLeft, right, top...
+    // opacity
+    function css(el, attr, val) {
+      if (val === void 0) {
+        val = getComputedStyle(el)[attr];
+        val = parseFloat(val);
+        return val;
+      }
+      if (attr === "opacity") {
+        el.style[attr] = val;
+      } else {
+        el.style[attr] = val + 'px';
+      }
+    }
+  </script>
+</body>
+
+</html>

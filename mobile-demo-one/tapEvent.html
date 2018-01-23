@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    /*
+      再点击的时候，
+      判断手指坐标,
+      抬起的收判断手指坐标 和 摁下的手指坐标差值
+      小于一定值时他就是点击事件
+    */
+    
+    function tap(el, fn) {
+      var startPoint = {};
+      el.addEventListener('touchstart', function (e) {
+        startPoint = {
+          x: e.changedTouches[0].pageX,
+          y: e.changedTouches[0].pageY
+        }
+      })
+
+      el.addEventListener('touchmove', function (e) {
+        startPoint = {
+          x: e.changedTouches[0].pageX,
+          y: e.changedTouches[0].pageY
+        }
+      })
+
+      el.addEventListener('touchend', function (e) {
+        var nowPoint = {
+          x: e.changedTouches[0].pageX,
+          y: e.changedTouches[0].pageY
+        }
+        if ((Math.abs(nowPoint.x - startPoint.x) < 5) && (Math.abs(nowPoint.y - startPoint.y) < 5)) {
+          fn && fn.call(el, e);
+        }
+      })
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    #box {
+      width: 200px;
+      height: 200px;
+      background-color: #f60;
+      color: #fff;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 处理滑屏误触的方法自定义tap事件 -->
+  <div class="page">
+    <div id="box"></div>
+  </div>
+  <script>
+    var page = document.querySelector('.page');
+    page.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+    });
+    var box = document.querySelector('#box');
+    box.addEventListener('touchstart', function(e) {
+      this.innerHTML = 'start';
+    });
+    box.addEventListener('touchmove', function(e) {
+      this.innerHTML += '<br/>move';
+    })
+    /*
+      在安卓下, 手指触摸元素, 容易触发元素的touchmove事件
+    */
+  </script>
+</body>
+</html>
