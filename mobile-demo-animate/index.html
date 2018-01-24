@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script src="../js/touch.js"></script>
+  <script>
+    (() => {
+      /* 兼容问题 */
+      window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame;
+      window.cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame ||
+        window.webkitCancelRequestAnimationFrame;
+      if (!requestAnimationFrame) {
+        var lastTime = Date.now();
+        window.requestAnimationFrame = (cb) => {
+          var id;
+          var nowTime = Date.now();
+          var delay = Math.max(16.7 - (nowTime - lastTime), 0);
+          // 如果上一次的时间和本次时间间隔 大于16.7不延迟直接执行
+          id = setTimeout(cb, delay);
+          lastTime = nowTime + delay; // 上一次动画执行时间
+          return id;
+        }
+      }
+      if(!cancelAnimationFrame) {
+        window.cancelAnimationFrame = index => {
+          clearTimeout(index);
+        }
+      }
+    })();
+  </script>
+</body>
+
+</html>

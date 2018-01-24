@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    #box {
+      position: absolute;
+      left: 0;
+      top: 50px;
+      width: 100px;
+      height: 100px;
+      color: #fff;
+      background: red;
+    }
+  </style>
+</head>
+
+<body>
+  <input type="button" value="start">
+  <div id="box"></div>
+  <script src="../js/tween.js"></script>
+  <script>
+    var box = document.querySelector('#box');
+    var btn = document.querySelector('input');
+    var  t = 0;
+    var  d = 10;
+    var  b = 0;
+    var  c = 300;
+    btn.onclick = _ => {
+      t++;
+      var val = Tween["easeIn"](t, b, c, d);
+      box.style.left = val + 'px';
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      background: #999;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    img {
+      vertical-align: top;
+    }
+
+    .wrap {
+      position: relative;
+      overflow: hidden;
+    }
+    /* 清除浮动 */
+
+    .list {
+      overflow: hidden;
+    }
+
+    .list li {
+      float: left;
+    }
+
+    .list img {
+      width: 100%;
+    }
+
+    .nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 10px;
+      text-align: center;
+      height: 10px;
+    }
+
+    .nav a {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: #fff;
+      border-radius: 5px;
+      vertical-align: top;
+    }
+
+    .nav a.active {
+      background: skyblue;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="wrap">
+      <ul class="list">
+        <li>
+          <a href="javascript:;">
+            <img src="imgs/2.jpg" alt="">
+          </a>
+        </li>
+        <li>
+          <a href="javascript:;">
+            <img src="imgs/1.jpg" alt="">
+          </a>
+        </li>
+        <li>
+          <a href="javascript:;">
+            <img src="imgs/3.jpg" alt="">
+          </a>
+        </li>
+      </ul>
+      <nav class="nav">
+        <a class="active" href="javascript:;"></a>
+        <a href="javascript:;"></a>
+        <a href="javascript:;"></a>
+      </nav>
+    </div>
+  </div>
+  <script src="./js/touch.js"></script>
+  <script>
+    /* 布局设置 */
+    (() => {
+      var wrap = document.querySelector('.wrap');
+      var list = document.querySelector('.list');
+      var imgs = list.children;
+      list.innerHTML += list.innerHTML;
+      list.style.width = imgs.length * wrap.clientWidth + 'px';
+      for (let i = 0; i < imgs.length; i++) {
+        const element = imgs[i];
+        element.style.width = wrap.clientWidth + 'px';
+      }
+    })();
+
+    /* 幻灯片滑屏 */
+    (() => {
+      var wrap = document.querySelector('.wrap');
+      var list = document.querySelector('.list');
+      var imgs = list.children;
+      var navs = document.querySelectorAll('.nav a');
+      var imgW = wrap.clientWidth;
+      var timer = void 0;
+      var now = 0;
+      swiper({
+        wrap: wrap,
+        dir: "x",
+        start: () => {
+          clearInterval(timer);
+          var nowX = css(list, "translateX");
+          now = Math.round(Math.abs(nowX / imgW));
+          list.style.transition = 'none';
+          if (now === 0) {
+            now = imgs.length / 2;
+          } else if (now === imgs.length - 1) {
+            now = imgs.length / 2 - 1;
+          }
+          var targetX = -now * imgW;
+          css(list, "translateX", targetX);
+        },
+        end: () => {
+          var nowX = css(list, "translateX");
+          now = Math.round(Math.abs(nowX / imgW));
+          var targetX = -now * imgW;
+          list.style.transition = '.5s';
+          css(list, "translateX", targetX);
+          for (let index = 0; index < navs.length; index++) {
+            const element = navs[index];
+            element.className = "";
+          }
+          navs[now % navs.length].className = "active";
+          auto();
+        }
+      });
+      auto();
+      /* 自动轮播 */
+      function auto() {
+        timer = setInterval(() => {
+          if (now === imgs.length - 1) {
+            now = imgs.length / 2 - 1;
+            list.style.transition = 'none';
+            css(list, "translateX", -now * imgW);
+          }
+          now++;
+          setTimeout(() => {
+            list.style.transition = '.5s';
+            css(list, "translateX", -now * imgW);
+          }, 17);
+          for (let index = 0; index < navs.length; index++) {
+            const element = navs[index];
+            element.className = "";
+          }
+          navs[now % navs.length].className = "active";
+        }, 3000)
+      }
+    })();
+    /*
+      配置参数
+      params: {
+        wrap: wrap,
+        dir: "x" || "y" // 要滑动的方向
+        start: function(){} // 手指摁下时的回调
+        end: function(){} // 手指抬起的回调
+      }
+    */
+    function swiper(params) {
+      // 滑屏元素的父级
+      var wrap = params.wrap;
+      // 滑动的元素
+      var scroll = wrap.children[0];
+      // 手指的初始位置
+      var startPoint = {};
+      // 元素的初始位置
+      var startEl = {};
+      // 元素的方向
+      var dir = params.dir || "x";
+      var dirTranslate = {
+        x: "translateX",
+        y: "translateY"
+      }
+      css(scroll, "translateX", 0);
+      css(scroll, "translateY", 0);
+      css(scroll, "translateZ", 0.001);
+
+      wrap.addEventListener('touchstart', function (e) {
+        params.start && params.start.call(wrap, e);
+        var touch = e.changedTouches[0];
+        startPoint = {
+          x: touch.pageX,
+          y: touch.pageY
+        };
+        startEl = {
+          x: css(scroll, "translateX"),
+          y: css(scroll, "translateY"),
+        }
+      });
+
+      wrap.addEventListener('touchmove', function (e) {
+        var touch = e.changedTouches[0];
+        var nowPoint = {
+          x: touch.pageX,
+          y: touch.pageY
+        };
+        /* 手指当前值 和初始值的一个差值 */
+        var dis = {
+          x: nowPoint.x - startPoint.x,
+          y: nowPoint.y - startPoint.y
+        };
+        /* 元素应该在的位置 */
+        var target = {
+          x: startEl.x + dis.x,
+          y: startEl.y + dis.y
+        };
+
+        /* 设置样式 */
+        css(scroll, dirTranslate[dir], target[dir]);
+      });
+
+      wrap.addEventListener('touchend', function (e) {
+        params.end && params.end.call(wrap, e);
+      })
+    }
+  </script>
+</body>
+
+</html>

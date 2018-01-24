@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    #box {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100px;
+      height: 100px;
+      background: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="box"></div>
+  <script src="../js/tween.js"></script>
+  <script src="../js/touch.js"></script>
+  <script>
+    (() => {
+      var box = document.querySelector('#box');
+      css(box, "translateX", 0);
+      css(box, "translateY", 0);
+      startMove({
+        el: box,
+        type: "backOut",
+        time: 500,
+        target: {
+          translateX: 300,
+          translateY: 400
+        },
+        cbFinish: () => {
+          // 动画完成函数
+          console.log('动画执行完之后...')
+        },
+        cbInit:() => {
+          // 动画执行中
+          console.log('x')
+        }
+      });
+    })();
+    /* startMove */
+    /*
+      params: {
+        el: 要动画的元素,
+        type: 动画的类型,
+        traget: {
+          left: 100,
+          translateX: 100
+        },
+        cbFinish,
+        cbInit,
+        time: // 动画时长
+      }
+    */
+    function startMove(params) {
+      var t = 0;
+      var b = {}; // 样式的初始值
+      var c = {}; // 样式的差值
+      var d = Math.ceil(params.time / 16.7);
+      cancelAnimationFrame(params.el.timer);
+      for (const s in params.target) {
+        b[s] = css(params.el, s);
+        c[s] = params.target[s] - b[s];
+      };
+
+      params.el.timer = requestAnimationFrame(move);
+      function move() {
+        if(t > d) {
+          cancelAnimationFrame(params.el.timer);
+          params.cbFinish && params.cbFinish.call(params.el);
+        } else {
+          t++;
+          for (const s in params.target) {
+            var val = Tween[params.type](t, b[s], c[s], d);
+            css(params.el, s, val);
+          }
+          params.cbInit && params.cbInit.call(params.el);
+          params.el.timer = requestAnimationFrame(move);
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>
